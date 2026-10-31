@@ -10,13 +10,14 @@
  *   base         folder with the sprite PNGs
  *   mistakeRate  chance (0..1) per obstacle that the auto-player mistimes it (→ GAME OVER, then restarts)
  *   auto         true = plays itself; false = Space / ArrowUp jump, ArrowDown duck
+ *   onJump / onHit / onScore   optional callbacks (used for sound effects)
  *   rng          custom random function (tests)
  */
 (function (root) {
   'use strict';
 
   // Logical units are half sprite pixels (the canvas is drawn at 2x).
-  var W = 600, H = 150, GROUND = 128, SCALE = 2;
+  var W = 600, H = 190, GROUND = 168, SCALE = 2;   // 40 extra units of head-room so a full jump stays inside the canvas
   var GRAVITY = 0.6, JUMP_V = 10.5;
   var JUMP_CENTER = JUMP_V / GRAVITY;
   var DINO_X = 30, DINO_W = 44, DINO_H = 47, DUCK_W = 55, DUCK_H = 26;
@@ -118,6 +119,7 @@
   P.jump = function () {
     if (this.dino.air || this.state !== 'run') return;
     this.dino.air = true; this.dino.duck = false; this.dino.vy = JUMP_V;
+    if (this.o.onJump) this.o.onJump();
   };
 
   P.step = function () {
@@ -144,10 +146,11 @@
         this.state = 'over'; this.overTimer = 0; this.overs++;
         this.hi = Math.max(this.hi, Math.floor(this.score));
         d.duck = false;
+        if (this.o.onHit) this.o.onHit();
         return;
       }
     }
-    if (Math.floor(this.score / 100) > Math.floor((this.score - this.speed * 0.025) / 100) && this.score > 50) this.blink = 40;
+    if (Math.floor(this.score / 100) > Math.floor((this.score - this.speed * 0.025) / 100) && this.score > 50) { this.blink = 40; if (this.o.onScore) this.o.onScore(); }
     if (this.blink > 0) this.blink--;
   };
 

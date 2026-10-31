@@ -37,28 +37,28 @@
   #stage { position: fixed; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 0 0; }
 
   #haze {
-    position: absolute; left: 360px; top: 250px; width: 1200px; height: 560px; pointer-events: none;
+    position: absolute; left: 560px; top: 250px; width: 800px; height: 400px; pointer-events: none;
     background: radial-gradient(closest-side, rgba(240, 255, 244, .42), rgba(240, 255, 244, .16) 62%, rgba(240, 255, 244, 0));
   }
   #dino {
-    position: absolute; left: 450px; top: 200px; width: 1020px; height: 255px;
+    position: absolute; left: 610px; top: 110px; width: 700px; height: 222px;
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
             mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
   }
-  #msg { position: absolute; left: 0; top: 470px; width: 1920px; color: #151515; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
-  #msg h1 { text-align: center; font-size: 46px; font-weight: 400; letter-spacing: .2px; }
-  #msg .try { width: 410px; margin: 26px auto 0; font-size: 26px; line-height: 1.55; }
-  #msg ul { margin: 4px 0 0 0; padding-left: 40px; }
+  #msg { position: absolute; left: 0; top: 352px; width: 1920px; color: #151515; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
+  #msg h1 { text-align: center; font-size: 40px; font-weight: 400; letter-spacing: .2px; }
+  #msg .try { width: 340px; margin: 20px auto 0; font-size: 22px; line-height: 1.55; }
+  #msg ul { margin: 2px 0 0 0; padding-left: 34px; }
   #msg li { padding-left: 4px; }
 
   /* ---------- sleeper ---------- */
   #shadow {
-    position: absolute; left: 690px; top: 1000px; width: 520px; height: 56px; border-radius: 50%;
+    position: absolute; left: 760px; top: 942px; width: 400px; height: 44px; border-radius: 50%;
     background: radial-gradient(closest-side, rgba(10, 80, 40, .42), rgba(10, 80, 40, .18) 60%, transparent);
     filter: blur(6px); animation: shadow 6.4s ease-in-out infinite;
   }
   @keyframes shadow { 0%, 100% { transform: scaleX(1); opacity: .9; } 50% { transform: scaleX(1.03); opacity: 1; } }
-  #kid { position: absolute; left: 640px; top: 700px; width: 640px; height: 364px; transform-origin: 50% 100%; animation: breath 6.4s ease-in-out infinite; }
+  #kid { position: absolute; left: 730px; top: 722px; width: 460px; height: 262px; transform-origin: 50% 100%; animation: breath 6.4s ease-in-out infinite; }
   @keyframes breath { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.004, 1.012); } }
 
   /* ---------- fx (pollen + grass in front) ---------- */
@@ -131,6 +131,7 @@
 <div id="hud">
   <label>🎵 music <input id="vMusic" type="range" min="0" max="100" value="35"></label>
   <label>💤 snoring <input id="vSnore" type="range" min="0" max="100" value="70"></label>
+  <label>🦖 sfx <input id="vSfx" type="range" min="0" max="100" value="30"></label>
   <button id="fs" type="button">Fullscreen</button>
 </div>
 
@@ -152,7 +153,8 @@
 
   /* ---------- dino game ---------- */
   var dc = $('dino');
-  var game = new DinoGame(dc, { base: 'assets/dino/', mistakeRate: num('mistakes', 0.006), auto: Q.get('manual') !== '1' });
+  var game = new DinoGame(dc, { base: 'assets/dino/', mistakeRate: num('mistakes', 0.006), auto: Q.get('manual') !== '1',
+    onJump: function () { sfx('press'); }, onHit: function () { sfx('hit'); }, onScore: function () { sfx('reached'); } });
   game.start();
 
   /* ---------- sleeper (sprite 4×4, 16 frames) ---------- */
@@ -192,10 +194,20 @@
   var amb = [new Audio('assets/meadow-boost.mp3'), new Audio('assets/meadow-boost.mp3')];
   amb.forEach(function (a) { a.preload = 'auto'; a.volume = 0; });
   var vMusic = num('music', 0.35), vSnore = num('snore', 0.7);
+  var vSfx = num('sfx', 0.3);
+  var SFX = {};
+  ['press', 'hit', 'reached'].forEach(function (n) { var a = new Audio('assets/sfx/' + n + '.mp3'); a.preload = 'auto'; SFX[n] = a; });
+  function sfx(n) {
+    if (!audioOn || !vSfx) return;
+    var a = SFX[n].cloneNode(); a.volume = Math.min(1, vSfx);   // clone → overlapping plays are fine
+    a.play().catch(function () {});
+  }
   var audioOn = false, cur = 0;
   $('vMusic').value = vMusic * 100; $('vSnore').value = vSnore * 100;
   $('vMusic').oninput = function () { vMusic = this.value / 100; };
   $('vSnore').oninput = function () { vSnore = this.value / 100; };
+  $('vSfx').value = vSfx * 100;
+  $('vSfx').oninput = function () { vSfx = this.value / 100; };
 
   function startAudio() {
     var p1 = snore.play();
@@ -235,20 +247,12 @@
   }
   requestAnimationFrame(tick);
 
-  /* ---------- fx: pollen + swaying grass in front ---------- */
+  /* ---------- fx: drifting pollen ---------- */
   var fx = $('fx'), c = fx.getContext('2d'), DPR = Math.min(2, devicePixelRatio || 1);
-  var vw = 0, vh = 0, blades = [], motes = [];
-  var GREENS = ['#2fb84a', '#3cc546', '#52d44a', '#6fe04c', '#8de85a', '#27a845'];
+  var vw = 0, vh = 0, motes = [];
   function resize() {
     vw = innerWidth; vh = innerHeight;
     fx.width = vw * DPR; fx.height = vh * DPR; c.setTransform(DPR, 0, 0, DPR, 0, 0);
-    blades = [];
-    var n = Math.round(vw / 6);
-    for (var i = 0; i < n; i++) {
-      blades.push({ x: Math.random() * vw, h: (0.025 + Math.random() * 0.075) * vh, w: 2 + Math.random() * 3.5,
-        ph: Math.random() * 6.28, sp: 0.6 + Math.random() * 0.8, col: GREENS[(Math.random() * GREENS.length) | 0], lean: (Math.random() - 0.5) * 8 });
-    }
-    blades.sort(function (a, b) { return a.h - b.h; });
     motes = [];
     for (var j = 0; j < 46; j++) motes.push(mote(true));
   }
@@ -276,20 +280,7 @@
       c.arc(m.x, m.y, m.r, 0, 6.283); c.fill();
     }
 
-    // grass blades along the bottom edge (in front of the sleeper)
-    var wind = Math.sin(T * 0.5) * 0.5 + Math.sin(T * 1.3 + 1.7) * 0.3;
-    for (var k = 0; k < blades.length; k++) {
-      var b = blades[k];
-      var sway = (wind * 10 + Math.sin(T * b.sp + b.ph) * 4 + b.lean) * (b.h / (vh * 0.1));
-      var bx = b.x, by = vh + 4, tx = bx + sway, ty = by - b.h;
-      c.beginPath();
-      c.moveTo(bx - b.w, by);
-      c.quadraticCurveTo(bx - b.w * 0.3 + sway * 0.2, by - b.h * 0.6, tx, ty);
-      c.quadraticCurveTo(bx + b.w * 0.3 + sway * 0.2, by - b.h * 0.6, bx + b.w, by);
-      c.closePath();
-      c.fillStyle = b.col; c.fill();
-    }
-  })(last);
+    })(last);
 
   /* ---------- HUD: appears on mouse move, hides when idle (clean capture) ---------- */
   var idleT = 0;
@@ -305,6 +296,7 @@
   addEventListener('keydown', function (e) {
     if (e.key === 'f' || e.key === 'F') $('fs').click();
     if (e.key === 'm' || e.key === 'M') { vMusic = vMusic ? 0 : num('music', 0.35); $('vMusic').value = vMusic * 100; }
+    if (e.key === 'x' || e.key === 'X') { vSfx = vSfx ? 0 : num('sfx', 0.3); $('vSfx').value = vSfx * 100; }
     if (e.key === 's' || e.key === 'S') { vSnore = vSnore ? 0 : num('snore', 0.7); $('vSnore').value = vSnore * 100; }
   });
 })();
