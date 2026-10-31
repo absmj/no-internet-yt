@@ -1,9 +1,9 @@
 <!doctype html>
-<html lang="az">
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>İnternet yoxdur 🌿</title>
+<title>No Internet 🌿</title>
 <style>
   :root {
     --ink: #535353;
@@ -36,38 +36,29 @@
   /* ---------- stage: fixed 1920×1080 canvas scaled to the window ---------- */
   #stage { position: fixed; left: 50%; top: 50%; width: 1920px; height: 1080px; transform-origin: 0 0; }
 
-  .card {
-    position: absolute; left: 480px; top: 54px; width: 960px;
-    background: var(--card); border: 1px solid var(--card-line); border-radius: 18px;
-    box-shadow: 0 30px 70px rgba(14, 70, 60, .28), 0 4px 14px rgba(14, 70, 60, .12);
-    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    overflow: hidden;
-    animation: float 9s ease-in-out infinite alternate;
+  #haze {
+    position: absolute; left: 360px; top: 250px; width: 1200px; height: 560px; pointer-events: none;
+    background: radial-gradient(closest-side, rgba(240, 255, 244, .42), rgba(240, 255, 244, .16) 62%, rgba(240, 255, 244, 0));
   }
-  @keyframes float { from { transform: translateY(0); } to { transform: translateY(-8px); } }
-  .bar { display: flex; align-items: center; gap: 14px; height: 46px; padding: 0 18px; background: rgba(240, 242, 244, .9); border-bottom: 1px solid rgba(0, 0, 0, .06); }
-  .dots { display: flex; gap: 8px; }
-  .dots i { width: 13px; height: 13px; border-radius: 50%; background: #d0d3d6; display: block; }
-  .tab { display: flex; align-items: center; gap: 9px; padding: 7px 16px; border-radius: 10px 10px 0 0; background: #fff; font-size: 15px; color: #444; margin-top: 10px; height: 36px; }
-  .tab svg { width: 16px; height: 16px; }
-  .url { flex: 1; height: 28px; border-radius: 14px; background: #fff; display: flex; align-items: center; padding: 0 16px; font-size: 14px; color: #8a8a8a; letter-spacing: .2px; }
-  .page { padding: 26px 44px 22px; }
-  .head { display: flex; align-items: center; gap: 22px; }
-  #icon { width: 66px; height: 66px; image-rendering: pixelated; flex: none; }
-  h1 { font-size: 38px; font-weight: 600; color: #3b3b3b; letter-spacing: -.3px; }
-  .sub { margin-top: 6px; font-size: 17px; line-height: 1.5; color: var(--ink-soft); }
-  .sub b { font-weight: 500; color: #666; }
-  .err { margin-top: 4px; font-size: 13px; letter-spacing: .6px; color: #9a9a9a; font-family: ui-monospace, Menlo, Consolas, monospace; }
-  #dino { display: block; width: 100%; height: auto; margin-top: 10px; image-rendering: pixelated; }
+  #dino {
+    position: absolute; left: 450px; top: 200px; width: 1020px; height: 255px;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+            mask-image: linear-gradient(90deg, transparent, #000 14%, #000 86%, transparent);
+  }
+  #msg { position: absolute; left: 0; top: 470px; width: 1920px; color: #151515; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
+  #msg h1 { text-align: center; font-size: 46px; font-weight: 400; letter-spacing: .2px; }
+  #msg .try { width: 410px; margin: 26px auto 0; font-size: 26px; line-height: 1.55; }
+  #msg ul { margin: 4px 0 0 0; padding-left: 40px; }
+  #msg li { padding-left: 4px; }
 
   /* ---------- sleeper ---------- */
   #shadow {
-    position: absolute; left: 648px; top: 936px; width: 640px; height: 70px; border-radius: 50%;
+    position: absolute; left: 690px; top: 1000px; width: 520px; height: 56px; border-radius: 50%;
     background: radial-gradient(closest-side, rgba(10, 80, 40, .42), rgba(10, 80, 40, .18) 60%, transparent);
     filter: blur(6px); animation: shadow 6.4s ease-in-out infinite;
   }
   @keyframes shadow { 0%, 100% { transform: scaleX(1); opacity: .9; } 50% { transform: scaleX(1.03); opacity: 1; } }
-  #kid { position: absolute; left: 600px; top: 600px; width: 720px; height: 410px; transform-origin: 50% 100%; animation: breath 6.4s ease-in-out infinite; }
+  #kid { position: absolute; left: 640px; top: 700px; width: 640px; height: 364px; transform-origin: 50% 100%; animation: breath 6.4s ease-in-out infinite; }
   @keyframes breath { 0%, 100% { transform: scale(1, 1); } 50% { transform: scale(1.004, 1.012); } }
 
   /* ---------- fx (pollen + grass in front) ---------- */
@@ -99,7 +90,7 @@
   #hud input[type=range] { width: 96px; accent-color: var(--accent); }
   #hud button { font: inherit; border: 0; border-radius: 8px; padding: 6px 10px; background: #e5f3e8; color: #2d6a3c; cursor: pointer; }
   #hud button:hover { background: #d3ebd9; }
-  @media (prefers-reduced-motion: reduce) { #bg, #glow, .card, #kid, #shadow { animation: none; } }
+  @media (prefers-reduced-motion: reduce) { #bg, #glow, #kid, #shadow { animation: none; } }
 </style>
 </head>
 <body class="idle">
@@ -111,25 +102,16 @@
 </div>
 
 <div id="stage">
-  <div class="card">
-    <div class="bar">
-      <div class="dots"><i></i><i></i><i></i></div>
-      <div class="tab">
-        <svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7" fill="#d4d6d9"/><path d="M5 10.5c1-1.4 5-1.4 6 0M5.6 6.2h.01M10.4 6.2h.01" stroke="#6b6e73" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
-        İnternet yoxdur
-      </div>
-      <div class="url">dino://offline</div>
-    </div>
-    <div class="page">
-      <div class="head">
-        <canvas id="icon" width="44" height="44"></canvas>
-        <div>
-          <h1>İnternet yoxdur</h1>
-          <div class="sub">Bunu sınayın: <b>şəbəkə kabellərini, modemi və routeri yoxlayın</b> — və ya sadəcə bir az dincəlin.</div>
-          <div class="err">ERR_INTERNET_DISCONNECTED</div>
-        </div>
-      </div>
-      <canvas id="dino"></canvas>
+  <div id="haze"></div>
+  <canvas id="dino"></canvas>
+  <div id="msg">
+    <h1>No Internet</h1>
+    <div class="try">Try:
+      <ul>
+        <li>Throw your phone away</li>
+        <li>Find a spot in nature</li>
+        <li>Enjoy</li>
+      </ul>
     </div>
   </div>
 
@@ -141,15 +123,15 @@
 
 <div id="gate">
   <div>
-    <button id="go" type="button">🌿&nbsp; Başla</button>
-    <small>Səsi aktiv etmək üçün bir dəfə klikləyin</small>
+    <button id="go" type="button">🌿&nbsp; Start</button>
+    <small>Click once to enable sound</small>
   </div>
 </div>
 
 <div id="hud">
-  <label>🎵 musiqi <input id="vMusic" type="range" min="0" max="100" value="35"></label>
-  <label>💤 xoruldama <input id="vSnore" type="range" min="0" max="100" value="70"></label>
-  <button id="fs" type="button">Tam ekran</button>
+  <label>🎵 music <input id="vMusic" type="range" min="0" max="100" value="35"></label>
+  <label>💤 snoring <input id="vSnore" type="range" min="0" max="100" value="70"></label>
+  <button id="fs" type="button">Fullscreen</button>
 </div>
 
 <script src="dino.js"></script>
@@ -169,10 +151,8 @@
   addEventListener('resize', fit); fit();
 
   /* ---------- dino game ---------- */
-  var icon = $('icon'), ictx = icon.getContext('2d');
-  DinoGame.drawDino(ictx, 0, 0, 2, '#6b6b6b', 'stand', false);
   var dc = $('dino');
-  var game = new DinoGame(dc, { mistakeRate: num('mistakes', 0.006), auto: Q.get('manual') !== '1' });
+  var game = new DinoGame(dc, { base: 'assets/dino/', mistakeRate: num('mistakes', 0.006), auto: Q.get('manual') !== '1' });
   game.start();
 
   /* ---------- sleeper (sprite 4×4, 16 frames) ---------- */

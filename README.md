@@ -1,6 +1,6 @@
 # no-internet-yt
 
-Canlı yayım üçün "İnternet yoxdur" səhifəsi: çəmənlikdə yatan personaj, xoruldama səsi, fon ambiyansı və öz-özünə oynayan dino.
+Canlı yayım üçün "No Internet" səhifəsi: çəmənlikdə yatan personaj, xoruldama səsi, fon ambiyansı və öz-özünə oynayan dino.
 
 ## İşə salmaq
 `index.html` faylını brauzerdə açın (və ya OBS → Browser Source). Səs üçün bir dəfə "Başla"-ya klikləyin
@@ -17,4 +17,5 @@ Canlı yayım üçün "İnternet yoxdur" səhifəsi: çəmənlikdə yatan person
 
 ## Fayllar
 - `assets/sprite.png` — frames.png-dən arxa fonu təmizlənmiş 4×4 sprite
+- `assets/dino/` — dino/cactus/bird/track sprites from [dhhruv/Chrome-Dino-Runner](https://github.com/dhhruv/Chrome-Dino-Runner) (MIT), converted to clean dark silhouettes
 - `assets/meadow-boost.mp3` — meadow.mp3-ün səs səviyyəsi qaldırılmış variantı (orijinal çox sakit idi)
